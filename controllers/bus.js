@@ -205,4 +205,15 @@ const updateBus = async (req, res) => {
   }
 };
 
-export { addBus, getBusses, getBus, deleteBus, updateBus };
+//count busses
+const countBusses = async (req, res) => {
+  try {
+    const totalBusses = await Bus.countDocuments();
+    return res.status(200).json(totalBusses);
+  } catch (err) {
+    // Handle errors and send a server error response
+    return res.status(500).json(err.message);
+  }
+};
+
+export { addBus, getBusses, getBus, deleteBus, updateBus, countBusses };

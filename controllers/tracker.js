@@ -74,7 +74,7 @@ const deleteTracker = async (req, res) => {
     if (!tracker) {
       return res.status(404).json({ message: "tracker not found" });
     }
-    await tracker.delete();
+    await Tracker.findByIdAndDelete(id);
     return res.status(201).send("deleted successfully");
   } catch (err) {
     return res.status(500).json({ message: err.message });

@@ -38,6 +38,7 @@ const addPayment = async (req, res) => {
     const newPayment = new Payment({
       paymentId: id,
       userId,
+      ticketId,
       amount,
       transactionStatus,
     });
@@ -75,4 +76,34 @@ const getPayment = async (req, res) => {
   }
 };
 
-export { addPayment, getNextPaymentId, getPayments, getPayment };
+// Count total payment
+const countPayment = async (req, res) => {
+  try {
+    // Fetch all payments
+    const payments = await Payment.find();
+
+    // Initialize total payment variable
+    let tPayment = 0;
+
+    // Calculate total payment if payments are found
+    if (payments && Array.isArray(payments)) {
+      payments.forEach((p) => {
+        if (p.amount) {
+          // Ensure 'amount' exists on each payment
+          tPayment += p.amount;
+        }
+      });
+    }
+
+    // Return the total payment in an object
+    return res.status(200).json(tPayment);
+  } catch (err) {
+    // Log error for debugging
+    console.error("Error calculating total payment:", err.message);
+
+    // Return a formatted error message
+    return res.status(500).json({ message: "Error calculating total payment" });
+  }
+};
+
+export { addPayment, getNextPaymentId, getPayments, getPayment, countPayment };

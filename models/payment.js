@@ -16,6 +16,11 @@ const PaymentSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    ticketId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "tickets",
+      required: true,
+    },
     transactionStatus: {
       type: String,
       enum: ["Pending", "Completed"],

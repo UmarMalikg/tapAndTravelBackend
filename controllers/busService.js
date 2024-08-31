@@ -1,5 +1,7 @@
 import Bus from "../models/bus.js";
 import BusService from "../models/busService.js";
+import Payment from "../models/payment.js";
+import Ticket from "../models/ticket.js";
 
 // Get next bus service id
 const getNextBusServiceId = async () => {
@@ -130,6 +132,68 @@ const deleteOneConactFromService = async (req, res) => {
   }
 };
 
+// count total companies
+const countCompanies = async (req, res) => {
+  try {
+    const totalCompanies = await BusService.countDocuments();
+    return res.status(200).json(totalCompanies);
+  } catch (err) {
+    // Handle errors and send a server error response
+    return res.status(500).json(err.message);
+  }
+};
+
+//get single company revenue
+const countRevenueByACompany = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const service = await BusService.findById(id);
+    if (!service) {
+      return res.status(404).send("service not found");
+    }
+    const busses = await Bus.find({ serviceId: id });
+    const bussesIds = [...new Set(busses.map((b) => b._id))];
+    const tickets = await Ticket.find({ busId: { $in: bussesIds } });
+    const ticketIds = [...new Set(tickets.map((t) => t._id))];
+    const payments = await Payment.find({ ticketId: { $in: ticketIds } });
+    let total = 0;
+    payments.forEach((p) => {
+      total += p.amount;
+    });
+    return res.status(200).json(total);
+  } catch (err) {
+    return res.status(500).json(err.message);
+  }
+};
+
+//get tickets for company
+const getTicketsForCompany = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const service = await BusService.findById(id);
+    if (!service) {
+      return res.status(404).send("service not found");
+    }
+    const busses = await Bus.find({ serviceId: id });
+    if (!busses || bussses.length === 0) {
+      return res.status(404).send("no bus found");
+    }
+    const busIds = [...new Set(busses.map((b) => b._id))];
+    const tickets = await Ticket.find({ busId: { $in: busIds } });
+    if (!tickets || tickets.length === 0) {
+      return res.status(404).send("no ticket found");
+    }
+    const ticketIds = [...new Set(tickets.map((t) => t._id))];
+    const payments = await Payment.find({ ticketId: { $in: ticketIds } });
+    if (!payments || payments.length === 0) {
+      return res.status(404).send("No payment found");
+    }
+    return res.status(200).json(payments);
+  } catch (err) {
+    return res.status(500).json(err.message);
+  }
+};
+
 export {
   addBusService,
   getBusServices,
@@ -137,4 +201,7 @@ export {
   deleteBusService,
   addNewContactDetailsInService,
   deleteOneConactFromService,
+  countCompanies,
+  countRevenueByACompany,
+  getTicketsForCompany,
 };

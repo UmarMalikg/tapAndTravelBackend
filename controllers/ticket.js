@@ -88,8 +88,8 @@ const deleteTicket = async (req, res) => {
     if (!ticket) {
       return res.status(404).json({ error: "ticket not found" });
     }
-    await ticket.delete();
-    return res.status(201).json(ticket);
+    await Ticket.findByIdAndDelete(id);
+    return res.status(201).send("deleted successfully");
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

@@ -24,7 +24,7 @@ connectDB();
 app.use("/admin", adminRoute);
 app.use("/user", userRoute);
 app.use("/route", routeRoute);
-app.use("/busService", busServiceRoute);
+app.use("/service", busServiceRoute);
 app.use("/bus", busRoute);
 app.use("/ticket", ticketRoute);
 app.use("/payment", payementRoute);

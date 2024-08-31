@@ -1,4 +1,5 @@
 import Bus from "../models/bus.js";
+import BusService from "../models/busService.js";
 import Route from "../models/route.js";
 
 // Get next route id
@@ -62,7 +63,7 @@ const getRoutes = async (req, res) => {
 const getRoute = async (req, res) => {
   try {
     const { id } = req.params;
-    const route = await Route.findByID(id);
+    const route = await Route.findById(id);
     if (!route) {
       return res.status(404).send("route not found");
     }
@@ -88,7 +89,7 @@ const deleteRoute = async (req, res) => {
           "this route is linked with busses, please delete those busses and then try again"
         );
     }
-    await route.delete();
+    await Route.findByIdAndDelete(id);
     return res.status(201).send("route deleted");
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -137,4 +138,41 @@ const updateRoute = async (req, res) => {
   }
 };
 
-export { addRoute, getRoutes, getRoute, deleteRoute, updateRoute };
+//count routes
+const countRoutes = async (req, res) => {
+  try {
+    const totalRoutes = await Route.countDocuments();
+    return res.status(200).json(totalRoutes);
+  } catch (err) {
+    // Handle errors and send a server error response
+    return res.status(500).json(err.message);
+  }
+};
+
+//count busses on route
+const getBussesOnARoute = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const route = await Route.findById(id);
+    if (!route) {
+      return res.status(404).json({ message: "Route not found" });
+    }
+    const bussesOnRoute = await Bus.find({ routeId: id });
+    if (!bussesOnRoute || bussesOnRoute.length === 0) {
+      return res.status(404).json({ message: "not found" });
+    }
+    return res.status(200).json(bussesOnRoute);
+  } catch (err) {
+    return res.status(500).json(err.message);
+  }
+};
+
+export {
+  addRoute,
+  getRoutes,
+  getRoute,
+  deleteRoute,
+  updateRoute,
+  countRoutes,
+  getBussesOnARoute,
+};
